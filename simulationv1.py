@@ -1,7 +1,8 @@
-#satellite simulation v1.2 (one Nominal pass simulation only)
+#satellite simulation v1.3 (one Nominal pass simulation only)
 #this code only simulates the change distance between the satellite and ground station change over time
 #provides a range measurement and calculates the signal delay based on the range and speed of light
 #plots the range and signal delay over time since the start of the pass, and saves the data to a CSV file
+#saves simulation metadata to a JSON file and outputs both files into an output folder
 
 #creates the simulation settings, adds a ground station, selects the measurement type
 from orbdetpy import (configure, add_station, MeasurementType)
@@ -11,6 +12,8 @@ from orbdetpy.conversion import get_J2000_epoch_offset, get_UTC_string
 from orbdetpy.propagation import propagate_orbits
 import matplotlib.pyplot as plt
 import csv
+import json
+import os
 
 # Setting up simulatiodn settings
 cfg = configure(rso_mass=2500.0, prop_start=get_J2000_epoch_offset("2019-05-01T00:00:00"),
@@ -54,17 +57,39 @@ for time, range_value, delay in zip(times, ranges, delays):
     print(f"{time:<25} {range_value:>20.3f} {delay:>20.9f}")
 print("-" * 75)
 
-#saving to a CSV file
-Orbital_Data = "orbital_data.csv"
+# Create metadata dictionary
+metadata = {
+    "sample_id": "nominal_pass_001",
+    "satellite_name": "RBH-SAT1",
+    "station_name": "Maui",
+    "measurement_type": "RANGE",
+    "prop_start_utc": "2019-05-01T00:00:00",
+    "prop_end_utc": "2019-05-01T01:00:00",
+    "prop_step_s": 300.0,
+    "range_error_m": 10.0,
+    "rso_mass_kg": 2500.0,
+    "prop_initial_state": [-23183898.259, 35170229.755, 43425.075, -2566.938, -1692.19, 138.948]
+}
+
+# Create output folder
+os.makedirs("output", exist_ok=True)
+
+# Saving to a CSV file
+Orbital_Data = "output/nominal_pass_001.csv"
 with open(Orbital_Data, "w", newline="") as f:
     writer = csv.writer(f)
-    writer.writerow(["UTC Time", "Range (m)", "Delay (s)"])
-    for time, range_value, delay in zip(times, ranges, delays):
-        writer.writerow([time, range_value, delay])
+    writer.writerow(["UTC Time", "Range (m)", "Delay (s)", "time_since_start_s"])
+    for time, range_value, delay, t_s in zip(times, ranges, delays, times_S):
+        writer.writerow([time, range_value, delay, t_s])
 print(f"\nData saved to {Orbital_Data}")
 
-# Plotting Graphs
+# Save JSON metadata file
+json_file = "output/nominal_pass_001.json"
+with open(json_file, "w") as f:
+    json.dump(metadata, f, indent=4)
+print(f"Metadata saved to {json_file}")
 
+# Plotting Graphs
 fig, (ax1, ax2) = plt.subplots(2, 1,sharex=True ,figsize=(10, 8))
 fig.suptitle("Satellite Range and Signal Delay Over Time")
 
