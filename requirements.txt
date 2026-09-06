@@ -1,0 +1,32 @@
+# Python dependencies for the LEO blind-timing orbit-estimation simulation pipeline.
+# Pinned to the verified working environment (Python 3.13.8, JDK 17 Temurin).
+# Recreate with:  pip install -r requirements.txt
+#
+# Note: orbdetpy runs the Orekit astrodynamics library via a bundled Java backend,
+# so a Java 17 runtime (with JAVA_HOME set) is also required — it is not a pip package.
+
+# --- Direct dependencies (used by simulationv1.py) ---
+orbdetpy==2.1.0          # orbital propagation / measurement simulation engine
+matplotlib==3.10.8       # plotting range & delay vs. time
+numpy==2.4.4             # numerical arrays (used by matplotlib; ML phases to come)
+
+# --- Transitive dependencies (pulled in by the above; pinned for reproducibility) ---
+certifi==2026.2.25
+charset-normalizer==3.4.7
+contourpy==1.3.3
+cycler==0.12.1
+fonttools==4.62.1
+grpcio==1.80.0
+grpcio-tools==1.80.0
+idna==3.11
+kiwisolver==1.5.0
+packaging==26.1
+pillow==12.2.0
+protobuf==6.33.6
+psutil==7.2.2
+pyparsing==3.3.2
+python-dateutil==2.9.0.post0
+requests==2.33.1
+six==1.17.0
+typing_extensions==4.15.0
+urllib3==2.6.3
