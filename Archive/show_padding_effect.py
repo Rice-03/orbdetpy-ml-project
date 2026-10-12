@@ -23,7 +23,7 @@ import sys
 import numpy as np
 import pandas as pd
 
-from build_dataset import extract_features, C_LIGHT
+from Clean_Testing.build_dataset import extract_features, C_LIGHT
 
 
 def compare_satellite(row, dd_cols, delta_t_s, cadence_s):

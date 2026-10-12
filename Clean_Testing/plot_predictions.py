@@ -40,7 +40,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from metrics import circular_error_deg
+from Clean_Testing.metrics import circular_error_deg
 
 LINEAR_TARGETS = ["label_sma_m", "label_ecc", "label_inc_deg"]
 CIRCULAR_TARGETS = ["label_raan_deg", "label_argp_deg", "label_anom_deg"]

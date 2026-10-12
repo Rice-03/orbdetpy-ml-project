@@ -112,11 +112,11 @@ import torch
 from torch import nn
 from sklearn.model_selection import KFold
 
-from splits import make_or_load_split, RANDOM_STATE
-from forest_trainer_v3 import (
+from Clean_Testing.splits import make_or_load_split, RANDOM_STATE
+from Clean_Testing.forest_trainer_v3 import (
     load_table, score, is_circular, ALL_TARGETS, CV_FOLDS, _agg_stat,
 )
-import plot_predictions
+import Clean_Testing.plot_predictions as plot_predictions
 
 
 RR_SCALE = 8000.0          # [m/s] fixed input scale for the range-rate channel
