@@ -18,7 +18,7 @@
 # degree values would show a true value of 359 deg and a prediction of
 # 1 deg as a huge miss in the corner of the plot, when it is actually a
 # 2-degree error -- exactly the same wraparound problem metrics.py's
-# circular_mae/circular_rmse already correct for numerically. The plot used
+# circular_rmse already corrects for numerically. The plot used
 # here instead is wrapped circular error (pred - true, wrapped to
 # (-180, 180] via metrics.circular_error_deg) against the true angle, with
 # a y=0 reference line. This shows the same thing a residual plot always
@@ -57,8 +57,8 @@ CIRCULAR_DISPLAY = {
     "label_anom_deg": ("Mean anomaly", "anom"),
 }
 
-MODEL_COLORS = {"lightgbm": "#1f77b4", "random_forest": "#ff7f0e"}
-MODEL_LABELS = {"lightgbm": "LightGBM", "random_forest": "Random Forest"}
+MODEL_COLORS = {"lightgbm": "#1f77b4", "random_forest": "#ff7f0e", "cnn": "#2ca02c"}
+MODEL_LABELS = {"lightgbm": "LightGBM", "random_forest": "Random Forest", "cnn": "1D CNN"}
 
 
 def _annotate(ax, model_name, text, slot):
@@ -73,7 +73,7 @@ def _annotate(ax, model_name, text, slot):
 
 def plot_linear_panel(ax, preds, results, target):
     title, scale, axis_label = LINEAR_DISPLAY[target]
-    for slot, model_name in enumerate(MODEL_COLORS):
+    for slot, model_name in enumerate([m for m in MODEL_COLORS if m in set(preds["model"])]):
         sub = preds[(preds["target"] == target) & (preds["model"] == model_name)]
         if sub.empty:
             continue
@@ -103,7 +103,7 @@ def plot_linear_panel(ax, preds, results, target):
 
 def plot_circular_panel(ax, preds, results, target):
     title, short = CIRCULAR_DISPLAY[target]
-    for slot, model_name in enumerate(MODEL_COLORS):
+    for slot, model_name in enumerate([m for m in MODEL_COLORS if m in set(preds["model"])]):
         sub = preds[(preds["target"] == target) & (preds["model"] == model_name)]
         if sub.empty:
             continue
@@ -116,9 +116,9 @@ def plot_circular_panel(ax, preds, results, target):
         r = results[(results["target"] == target) & (results["model"] == model_name)
                      & (results["method"] == "single_split")]
         if not r.empty:
-            mae, skill = r.iloc[0]["mae"], r.iloc[0]["circ_skill"]
+            rmse, skill = r.iloc[0]["rmse"], r.iloc[0]["circ_skill"]
             _annotate(ax, model_name,
-                      f"{MODEL_LABELS[model_name]}: circMAE={mae:.1f}deg, skill={skill:.2f}", slot)
+                      f"{MODEL_LABELS[model_name]}: circRMSE={rmse:.1f}deg, skill={skill:.2f}", slot)
 
     ax.axhline(0, linestyle="--", color="gray", linewidth=1, zorder=0)
     ax.set_xlim(0, 360)
@@ -132,6 +132,9 @@ def plot_circular_panel(ax, preds, results, target):
 def make_figure(predictions_path="output/test_predictions_v3.csv",
                  results_path="output/model_results_v3.csv",
                  out_path="output/predicted_vs_true.png"):
+    # Draws whichever models appear in predictions_path (the trees by
+    # default; cnn_trainer_v3.py calls this with its own files to produce a
+    # separate, identically laid-out figure for the CNN).
     for p in (predictions_path, results_path):
         if not os.path.exists(p):
             raise SystemExit(f"Required file not found: {p}\nRun forest_trainer_v3.py first.")
